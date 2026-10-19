@@ -1,0 +1,14 @@
+# Choose how CoachGPT generates answers: gemini | mock
+#
+#   gemini -> real AI via Google Gemini (free tier available).
+#             Get a key at https://aistudio.google.com/apikey
+#   mock   -> no AI and no key. Uses the exercise and food data built into the code.
+LLM_PROVIDER=gemini
+
+# Required when LLM_PROVIDER=gemini
+GEMINI_API_KEY=<your-gemini-api-key-here>
+
+# Optional: which Gemini model to use (default shown). If Google retires a model,
+# copy a current model name from https://ai.google.dev/gemini-api/docs/models
+GEMINI_MODEL=gemini-3.8-flash
+
