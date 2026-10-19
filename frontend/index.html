@@ -1,0 +1,372 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="dark">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>CoachGPT — Your AI Personal Trainer</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ===================== LOGIN / REGISTER ===================== -->
+<section id="auth-screen" class="screen hidden">
+  <button class="theme-toggle screen-toggle" aria-label="Toggle theme"></button>
+  <div class="onboard-card auth-card">
+    <div class="brand">
+      <span class="brand-mark">CG</span>
+      <span class="brand-name">CoachGPT</span>
+    </div>
+    <h1 id="auth-title">Welcome back</h1>
+    <p class="sub" id="auth-sub">Log in to pick up your plan and progress.</p>
+
+    <form id="auth-form" novalidate>
+      <div class="field-group">
+        <label for="auth-username">Username</label>
+        <input type="text" id="auth-username" autocomplete="username" maxlength="30" />
+      </div>
+      <div class="field-group">
+        <label for="auth-password">Password</label>
+        <input type="password" id="auth-password" autocomplete="current-password" maxlength="128" />
+        <p class="field-hint" id="auth-hint"></p>
+      </div>
+      <p class="form-error" id="auth-error" role="alert"></p>
+      <button type="submit" class="btn-primary btn-block" id="auth-submit">Log in</button>
+    </form>
+
+    <p class="auth-switch">
+      <span id="auth-switch-text">New here?</span>
+      <button type="button" class="link-btn" id="auth-switch">Create an account</button>
+    </p>
+  </div>
+</section>
+
+<!-- ===================== PROFILE (first-time setup and editing) ===================== -->
+<section id="profile-screen" class="screen hidden">
+  <button class="theme-toggle screen-toggle" aria-label="Toggle theme"></button>
+  <div class="onboard-card profile-card">
+    <div class="brand">
+      <span class="brand-mark">CG</span>
+      <span class="brand-name">CoachGPT</span>
+    </div>
+    <h1 id="profile-title">Set up your coach</h1>
+    <p class="sub" id="profile-sub">A few details so every plan is built for your body, diet and budget. For adults (18+).</p>
+
+    <form id="profile-form" novalidate>
+      <div class="field-group">
+        <label>Primary goal</label>
+        <div class="pill-select" data-name="goal">
+          <button type="button" class="pill" data-value="weight_loss">Weight loss</button>
+          <button type="button" class="pill" data-value="weight_gain">Weight gain</button>
+          <button type="button" class="pill" data-value="maintenance">Maintain</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Diet preference</label>
+        <div class="pill-select" data-name="diet">
+          <button type="button" class="pill" data-value="vegan">Vegan</button>
+          <button type="button" class="pill" data-value="vegetarian">Vegetarian</button>
+          <button type="button" class="pill" data-value="eggetarian">Eggetarian</button>
+          <button type="button" class="pill" data-value="non_vegetarian">Non-vegetarian</button>
+        </div>
+        <p class="field-hint">Eggetarian = vegetarian plus eggs.</p>
+      </div>
+
+      <div class="field-group">
+        <label>Experience level</label>
+        <div class="pill-select" data-name="experience">
+          <button type="button" class="pill" data-value="beginner">Beginner</button>
+          <button type="button" class="pill" data-value="intermediate">Intermediate</button>
+          <button type="button" class="pill" data-value="advanced">Advanced</button>
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label>Equipment access</label>
+        <div class="pill-select" data-name="equipment">
+          <button type="button" class="pill" data-value="none">None</button>
+          <button type="button" class="pill" data-value="home_basic">Home basics</button>
+          <button type="button" class="pill" data-value="full_gym">Full gym</button>
+        </div>
+      </div>
+
+      <div class="field-grid">
+        <div class="field-group">
+          <label for="p-height">Height (cm)</label>
+          <input type="number" id="p-height" min="120" max="230" step="0.5" placeholder="e.g. 165" />
+        </div>
+        <div class="field-group">
+          <label for="p-weight">Current weight (kg)</label>
+          <input type="number" id="p-weight" min="35" max="250" step="0.1" placeholder="e.g. 70" />
+        </div>
+        <div class="field-group">
+          <label for="p-goal-weight">Goal weight (kg)</label>
+          <input type="number" id="p-goal-weight" min="35" max="250" step="0.1" placeholder="e.g. 64" />
+        </div>
+        <div class="field-group">
+          <label for="p-budget">Daily food budget (₹)</label>
+          <input type="number" id="p-budget" min="40" max="20000" step="10" placeholder="e.g. 200" />
+        </div>
+      </div>
+
+      <div class="field-group">
+        <label for="p-calories">Daily calorie target (optional)</label>
+        <input type="number" id="p-calories" min="1200" max="5000" step="50" placeholder="Leave blank and we'll estimate it" />
+      </div>
+
+      <p class="form-error" id="profile-error" role="alert"></p>
+      <button type="submit" class="btn-primary btn-block" id="profile-submit">Start coaching →</button>
+      <button type="button" class="btn-ghost btn-block hidden" id="profile-cancel">Cancel</button>
+    </form>
+  </div>
+</section>
+
+<!-- ===================== MAIN APP ===================== -->
+<div id="app" class="app hidden">
+
+  <aside class="sidebar">
+    <div class="brand">
+      <span class="brand-mark">CG</span>
+      <span class="brand-name">CoachGPT</span>
+    </div>
+
+    <nav class="nav">
+      <button class="nav-item active" data-view="chat">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 4h16v12H7l-3 3V4z" stroke="currentColor" stroke-width="1.8" stroke-linejoin="round"/></svg>
+        Coach chat
+      </button>
+      <button class="nav-item" data-view="meals">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M6 3v8a2 2 0 002 2h0M6 3v18M6 3H4M10 3v6M18 3c-2 1-3 3-3 6s1 4 3 5v7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Meal planner
+      </button>
+      <button class="nav-item" data-view="progress">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M4 20V10M12 20V4M20 20v-7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/></svg>
+        Daily progress
+      </button>
+      <button class="nav-item" data-view="professional">
+        <svg viewBox="0 0 24 24" fill="none"><path d="M12 12a4.5 4.5 0 100-9 4.5 4.5 0 000 9zM4 21c0-4 3.5-7 8-7s8 3 8 7" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        Talk to a professional
+      </button>
+    </nav>
+
+    <div class="sidebar-footer">
+      <div class="user-chip">
+        <div class="user-name" id="user-name"></div>
+        <div class="profile-chip" id="profile-summary"></div>
+      </div>
+      <div class="footer-actions">
+        <button class="btn-ghost btn-small" id="edit-profile">Edit profile</button>
+        <button class="btn-ghost btn-small" id="logout">Log out</button>
+        <button class="theme-toggle" aria-label="Toggle theme"></button>
+      </div>
+    </div>
+  </aside>
+
+  <!-- ===== Chat view ===== -->
+  <main class="view active" id="view-chat">
+    <header class="view-header">
+      <div>
+        <h2>Coach chat</h2>
+        <p class="muted">Workouts, form checks, food ideas, motivation — ask anything.</p>
+      </div>
+      <span class="status-dot" id="conn-status" title="Connection status"></span>
+    </header>
+
+    <div class="chat-window" id="chat-window"></div>
+
+    <form id="chat-form" class="chat-input-bar">
+      <input type="text" id="chat-input" placeholder="Ask for a workout, protein ideas on a budget, or a pep talk…" autocomplete="off" />
+      <button type="submit" class="btn-primary" id="chat-send">Send</button>
+    </form>
+  </main>
+
+  <!-- ===== Meal planner view ===== -->
+  <main class="view" id="view-meals">
+    <header class="view-header">
+      <div>
+        <h2>Meal planner</h2>
+        <p class="muted">A one-day plan built around your diet, protein target and budget.</p>
+      </div>
+    </header>
+
+    <div class="target-strip" id="target-strip"></div>
+
+    <div class="meal-controls">
+      <div class="field-inline">
+        <label for="meal-diet">Diet</label>
+        <select id="meal-diet">
+          <option value="vegan">Vegan</option>
+          <option value="vegetarian">Vegetarian</option>
+          <option value="eggetarian">Eggetarian</option>
+          <option value="non_vegetarian">Non-vegetarian</option>
+        </select>
+      </div>
+      <div class="field-inline">
+        <label for="meal-goal">Goal</label>
+        <select id="meal-goal">
+          <option value="weight_loss">Weight loss</option>
+          <option value="weight_gain">Weight gain</option>
+          <option value="maintenance">Maintain</option>
+        </select>
+      </div>
+      <div class="field-inline">
+        <label for="meal-budget">Budget per day (₹)</label>
+        <input type="number" id="meal-budget" min="40" max="20000" step="10" />
+      </div>
+      <button class="btn-primary" id="generate-meal-plan">Generate plan</button>
+    </div>
+
+    <div id="meal-plan-output" class="meal-grid"></div>
+  </main>
+
+  <!-- ===== Progress view ===== -->
+  <main class="view" id="view-progress">
+    <header class="view-header">
+      <div>
+        <h2>Daily progress</h2>
+        <p class="muted">Log your weight, workout and how much of the day's plan you completed.</p>
+      </div>
+    </header>
+
+    <div class="progress-layout">
+      <div class="progress-card">
+        <div class="field-inline field-date">
+          <label for="log-date">Date</label>
+          <input type="date" id="log-date" />
+        </div>
+
+        <div class="ring-wrap">
+          <svg viewBox="0 0 140 140" class="ring">
+            <circle cx="70" cy="70" r="60" class="ring-track"/>
+            <circle cx="70" cy="70" r="60" class="ring-fill" id="ring-fill"/>
+          </svg>
+          <div class="ring-label">
+            <span id="ring-percent">0%</span>
+            <span class="ring-sub">of plan done</span>
+          </div>
+        </div>
+
+        <input type="range" min="0" max="100" value="0" id="progress-slider" aria-label="Percent of today's plan completed" />
+
+        <div class="field-grid field-grid-tight">
+          <div class="field-group">
+            <label for="log-weight">Weight today (kg)</label>
+            <input type="number" id="log-weight" min="35" max="250" step="0.1" />
+          </div>
+          <div class="field-group">
+            <label for="log-protein">Protein eaten (g)</label>
+            <input type="number" id="log-protein" min="0" max="500" step="1" />
+          </div>
+          <div class="field-group">
+            <label for="log-water">Water (glasses)</label>
+            <input type="number" id="log-water" min="0" max="30" step="1" />
+          </div>
+        </div>
+
+        <div class="checkbox-row">
+          <label class="checkbox"><input type="checkbox" id="workout-done" /> Workout completed</label>
+          <div class="workout-details hidden" id="workout-details">
+            <div class="field-inline">
+              <label for="workout-type">Type</label>
+              <select id="workout-type">
+                <option value="strength">Strength</option>
+                <option value="cardio">Cardio</option>
+                <option value="hiit">HIIT</option>
+                <option value="yoga_mobility">Yoga / mobility</option>
+                <option value="sports">Sports</option>
+                <option value="walk">Walk / run</option>
+                <option value="other">Other</option>
+              </select>
+            </div>
+            <div class="field-inline">
+              <label for="workout-minutes">Minutes</label>
+              <input type="number" id="workout-minutes" min="0" max="300" step="5" />
+            </div>
+          </div>
+          <label class="checkbox"><input type="checkbox" id="meal-followed" /> Followed my meal plan</label>
+        </div>
+
+        <textarea id="mood-note" maxlength="300" placeholder="Optional note — how did today feel?"></textarea>
+
+        <p class="form-error" id="progress-error" role="alert"></p>
+        <button class="btn-primary btn-block" id="save-progress">Save this day</button>
+        <p class="save-confirm" id="save-confirm"></p>
+      </div>
+
+      <div class="progress-side">
+        <div class="history-card" id="goal-card"></div>
+        <div class="history-card">
+          <h3>Weight trend</h3>
+          <div id="weight-chart" class="chart"></div>
+        </div>
+        <div class="history-card">
+          <h3>Recent days</h3>
+          <ul id="history-list" class="history-list">
+            <li class="muted">No entries yet — log today to start your streak.</li>
+          </ul>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- ===== Professional Help view ===== -->
+  <main class="view" id="view-professional">
+    <header class="view-header">
+      <div>
+        <h2>Talk to a professional</h2>
+        <p class="muted">CoachGPT is a supportive AI guide, not a licensed trainer or dietitian.</p>
+      </div>
+    </header>
+
+    <div class="safety-banner">
+      <strong>When AI guidance isn't enough</strong>
+      <p>If you're dealing with any of the following, please speak with a qualified human professional before continuing with AI-generated advice:</p>
+      <ul>
+        <li>Pain, injury, or a flare-up of an existing condition</li>
+        <li>A diagnosed medical condition (heart, joint, metabolic, etc.)</li>
+        <li>Pregnancy or postpartum recovery</li>
+        <li>Signs of disordered eating, or a history of one</li>
+        <li>No progress despite consistent effort over several weeks</li>
+      </ul>
+    </div>
+
+    <div class="pro-grid">
+      <div class="pro-card">
+        <h4>Find a Certified Personal Trainer</h4>
+        <p>Look for one of these recognised certifications — they indicate real, tested training knowledge:</p>
+        <ul>
+          <li>NASM-CPT (National Academy of Sports Medicine)</li>
+          <li>ACE-CPT (American Council on Exercise)</li>
+          <li>ISSA or NSCA-CPT</li>
+        </ul>
+        <div class="pro-links">
+          <a href="https://www.acefitness.org/resources/everyone/find-a-pro/" target="_blank" rel="noopener">ACE: Find a Trainer ↗</a>
+          <a href="https://www.nasm.org/certified-trainer-locator" target="_blank" rel="noopener">NASM: Trainer Locator ↗</a>
+        </div>
+      </div>
+
+      <div class="pro-card">
+        <h4>Find a Registered Dietitian</h4>
+        <p>For real nutrition guidance — especially with medical conditions — look for:</p>
+        <ul>
+          <li>RD / RDN (Registered Dietitian Nutritionist)</li>
+          <li>A licensed nutritionist in your country/state</li>
+        </ul>
+        <div class="pro-links">
+          <a href="https://www.eatright.org/find-a-nutrition-expert" target="_blank" rel="noopener">EatRight: Find an Expert ↗</a>
+        </div>
+      </div>
+    </div>
+
+    <p class="muted pro-footnote">
+      These are general directories, not endorsements of any individual professional. Always verify credentials directly.
+    </p>
+  </main>
+
+</div>
+
+<script src="app.js"></script>
+</body>
+</html>
